@@ -1,5 +1,4 @@
 # Cloud Cost Optimizer
-[SYSTOR23_Adi Yehoshua Extended Version PDF](https://github.com/AdiY10/CloudCostOptimizer/blob/master/SYSTOR23_Adi%20Yehoshua_extended_version.pdf)
 
 The goal of this project is to design and implement a scalable multi-cloud cost optimizer capable of calculating the best scheme for deploying a given arbitrary complex workload over a public (hybrid) cloud, thus reducing the involved monetary costs.
 As an input, the optimizer receives the specification of the desired workload. It includes the resource requirements for each of the components comprising the workload, the connections between the components, and additional constraints. CCO analyzes this specification and calculates the mapping of the workload components to cloud resources (VM instances) that minimizes the expected monetary cost of deploying the application over a public cloud. This operation could be performed over a given single cloud provider (e.g., AWS) or over a set of cloud providers by splitting the workload over multiple clouds in accordance with the hybrid cloud paradigm.
@@ -14,104 +13,6 @@ For further information:
 * [Azure Spot Virtual Macines](https://azure.microsoft.com/en-us/services/virtual-machines/spot/#features)
 * [Hybrid Cloud](https://cloud.google.com/learn/what-is-hybrid-cloud)
 
-
-
-## Getting Started
-To start using The Cloud Cost Optimizer, please *clone* this git repository:
-```
-git clone https://github.com/AdiY10/CloudCostOptimizer.git
-```
-### Prerequisites
-* The Cloud Cost Optimizer requires Python3- Python 3.4 or newer installed. You can check the version by typing ```python3 --version``` in your command line.
-* You can download the latest Python version from [here](https://www.python.org/downloads/).
-
-### Installation
-```
-$ python3 -m pip install requests
-$ pip3 install urllib3
-$ pip3 install grequests
-$ pip3 install numpy
-$ pip3 install boto3
-```
-
-### Usage
-```
-$ python3 CCO.py
-```
-Where the following command activate the Optimizer
-
-## Parameters
-The file **input_fleet.json** is an example of an input (see input_fleet_instructions.json for further information).
-The user's workload should be in the **input_fleet.json** file- **don't forget to change it according to your needs.**
-#### Example of an input json file:
-```
-{
-    "selectedOs": "linux",
-    "spot/onDemand": "spot",
-    "region": ["eu-south-1", "eu-west-3", "us-east-2","us-east-1"],
-    "filterInstances": ["a1","t3a","c5a.xlarge"],
-    "Architecture": "all",
-    "apps": [
-        {
-            "app": "App1",
-            "share": true,
-            "components": [
-                {
-                    "memory": 8,
-                    "vCPUs": 4,
-                    "network": 5,
-                    "behavior": "terminate",
-                    "frequency": "2",
-                    "storageType": null,
-                    "affinity": "Comp2",
-                    "name": "Comp1",
-                },
-                {
-                    "memory": 8,
-                    "vCPUs": 3,
-                    "network": 0,
-                    "behavior": "hibernate",
-                    "frequency": "3",
-                    "storageType": null,
-                    "burstable": true,
-                    "anti-affinity": "Comp3",
-                    "name": "comp2"
-                },
-                                {
-                    "memory": 8,
-                    "vCPUs": 3,
-                    "network": 0,
-                    "behavior": "hibernate",
-                    "frequency": "3",
-                    "storageType": null,
-                    "burstable": true,
-                    "name": "comp5"
-                }
-            ]
-        },
-        {
-            "app": "App2",
-            "share": false,
-            "components": [
-                {
-                    "memory": 10,
-                    "vCPUs": 5,
-                    "network": 0,
-                    "behavior": "stop",
-                    "frequency": "4",
-                    "storageType": null,
-                    "burstable": true,
-                    "name": "Comp3"
-                }
-            ]
-        }
-    ]
-}
-```
-
-Where we can see an input of two Applications (App1, App2), which uses linux as their Operation System.
-App1 includes three components (Comp1, Comp2, Comp5), and App2 includes only one component (Comp3). each component
-has different resource requirements, which described by their memory, vCPUs etc...
 ### General parameters:
 #### Required parameters:
 * selectedOs - operating system (OS) for the workloads
@@ -148,19 +49,6 @@ has different resource requirements, which described by their memory, vCPUs etc.
 
 ### Configuration file:
 A configuration file with advanced settings is provided to the user, which allows him to edit default settings according to his preferences.
-#### Example of a Configuration file:
-```
-{
-    "Data Extraction (always / onceAday)": "onceAday",
-    "boto3 (enable / disable)": "disable",
-    "Provider (AWS / Azure / Hybrid)": "AWS",
-    "Brute Force": "False",
-    "Time per region": 1,
-    "Candidate list size": 100,
-    "Proportion amount node/sons": 0.0005,
-    "Verbose": "True"
-}
-```
 * When using Brute Force (marked as "True"), other parameters are irrelevant (Time per region,Candidate list size, * When using Brute Force (marked as "True"), other parameters are irrelevant (Time per region, Candidate list size, Proportion amount node/sons).
 ####Configuration Parameters
 * Data Extraction- The frequency with which the data will be extracted
@@ -173,140 +61,12 @@ A configuration file with advanced settings is provided to the user, which allow
 ## Results
 The output of the Optimizer is a json file containing  a list of configurations. Each configuration represents an assignment of all application components to AWS instances.
 
-### Example of the API- Best Result Only:
-```
-[
-    {
-        "price": 0.275,
-        "instances": [
-            {
-                "onDemandPrice": 0.204,
-                "region": "us-east-2",
-                "cpu": "8",
-                "ebsOnly": true,
-                "family": "General purpose",
-                "memory": "16",
-                "network": "Up to 10 Gigabit",
-                "os": "Linux",
-                "typeMajor": "a1",
-                "typeMinor": "2xlarge",
-                "storage": "EBS only",
-                "typeName": "a1.2xlarge",
-                "discount": 81,
-                "interruption_frequency": "<20%",
-                "interruption_frequency_filter": 4.0,
-                "spot_price": 0.0394,
-                "Price_per_CPU": 0.004925,
-                "Price_per_memory": 0.0024625,
-                "components": [
-                    {
-                        "appName": "App2",
-                        "componentName": "Comp3"
-                    }
-                ]
-            },
-            {
-                "onDemandPrice": 0.344,
-                "region": "us-east-2",
-                "cpu": "8",
-                "ebsOnly": false,
-                "family": "Compute optimized",
-                "memory": "16",
-                "network": "Up to 10 Gigabit",
-                "os": "Linux",
-                "typeMajor": "c5ad",
-                "typeMinor": "2xlarge",
-                "storage": "1 x 300 NVMe SSD",
-                "typeName": "c5ad.2xlarge",
-                "discount": 78,
-                "interruption_frequency": "<5%",
-                "interruption_frequency_filter": 0.0,
-                "spot_price": 0.076,
-                "Price_per_CPU": 0.0095,
-                "Price_per_memory": 0.00475,
-                "components": [
-                    {
-                        "appName": "App3",
-                        "componentName": "Comp4"
-                    }
-                ]
-            },
-            {
-                "onDemandPrice": 0.6912,
-                "region": "us-east-2",
-                "cpu": "16",
-                "ebsOnly": true,
-                "family": "Compute optimized",
-                "memory": "32",
-                "network": "25 Gigabit",
-                "os": "Linux",
-                "typeMajor": "c6gn",
-                "typeMinor": "4xlarge",
-                "storage": "EBS only",
-                "typeName": "c6gn.4xlarge",
-                "discount": 77,
-                "interruption_frequency": "5%-10%",
-                "interruption_frequency_filter": 1.0,
-                "spot_price": 0.1596,
-                "Price_per_CPU": 0.009975,
-                "Price_per_memory": 0.0049875,
-                "components": [
-                    {
-                        "appName": "App1",
-                        "componentName": "Comp1"
-                    },
-                    {
-                        "appName": "App1",
-                        "componentName": "comp2"
-                    },
-                    {
-                        "appName": "App1",
-                        "componentName": "comp5"
-                    }
-                ]
-            }
-        ],
-        "region": "us-east-2"
-    },
-    {
-        "price": 0.3,
-        ...
-    }
-]
-```
-
-## Local Search Algorithm Description
-
 ### General Description
 The algorithm Is split into epochs.
 each epoch is a combination of 2 phases:
   - **searching** - search for combiniation with minimal price. the search is based on Simulated Annealing and Stochastic Hill Climbing.
   - **selecting the next node to start searching from** -
     -  selects randomly.
-
-
-#### Search Algorithm
-the search is based on Simulated Annealing and Stochastic Hill Climbing.
-```mermaid
-flowchart TD
-    O[initial node]
-    A[decide proportion of sons to develop]
-    B[develop proportion node sons]
-    C[Split the group of sons:\n one that improve start node price  \n one that deteriorated start node price]
-    D{decide to improve?}
-    E[select one of the bad nodes stochastically,\n weighted by diff]
-    F[select one of the good nodes stochastically,\n weighted by diff]
-    G{selected?}
-    H[finish search]
-    I[continue search from selected node]
-
-    O --> A -->B --> C -->D
-    D -- no --> E --> G
-    D -- yes --> F --> G
-
-    G -- no --> H
-    G -- yes --> I -->A
-```
 
 ### HyperParameter
 - **Candidate list size** - The maximum capacity of the Candidate list size from the Reset Selector.
